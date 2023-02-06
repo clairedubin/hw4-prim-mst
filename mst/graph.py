@@ -42,3 +42,54 @@ class Graph:
 
         """
         self.mst = None
+        g = self.adj_mat
+        mst_rv = np.zeros_like(g)
+
+
+        def _process_edges(edge_array):
+        
+            """Helper function: Returns a list of (edge_weight, index) for all non-zero edges in edge_array"""
+            edges_to_keep = list(np.where(edge_array > 0)[0])
+            return [(edge_array[i], i) for i in edges_to_keep]
+
+
+        #remove loops (edges that connect a node to itself)
+        for i in range(g.shape[0]):
+            g[i,i] = 0
+            
+        #select random node as start node
+        prev = np.random.randint(g.shape[0])
+        h = _process_edges(g[prev])
+        #add edges to heap
+        heapq.heapify(h)
+        visited = [prev]
+
+        all_nodes = set(np.arange(g.shape[0]))
+
+        while set(visited) != all_nodes:
+                
+            if len(h) == 0:
+                
+                raise ValueError("Heap became empty before all nodes were added to MST")
+                
+            weight, node_index = heapq.heappop(h)
+                
+            if node_index in visited:
+                continue
+            
+            #add to mst
+            mst_rv[prev,node_index] = weight
+            mst_rv[node_index,prev] = weight
+            
+            #add child edges to heap
+            next_edges = _process_edges(g[node_index])
+            for val, idx in next_edges:
+                heapq.heappush(h, (val,idx))
+                
+            #add node to visited
+            visited += [node_index]
+
+        self.mst = mst_rv
+
+
+

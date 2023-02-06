@@ -71,4 +71,13 @@ def test_mst_student():
     TODO: Write at least one unit test for MST construction.
     
     """
-    pass
+    file_path = './data/small.csv'
+    g = Graph(file_path)
+    g.construct_mst()
+    
+    #Check that each node is connected to the MST
+    assert sum(np.sum(g.mst, axis=0) > 0) == g.adj_mat.shape[0], "At least one node is not connected to the MST"
+
+    #Check that the MST has n-1 edges (n = # of vertices)
+    mst_edge_count = len(np.where(g.mst > 0)[0])/2
+    assert mst_edge_count == g.adj_mat.shape[0] - 1, "Number of edges is not equal to number of vertices - 1"
